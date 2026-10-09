@@ -106,6 +106,21 @@ docker-compose.yml  一键部署栈
 
 ---
 
+## 关于 vendor/ 目录（供应链安全）
+
+`vendor/xlsx-0.20.3.tgz` 是 **SheetJS 官方发布**的 xlsx 0.20.3 包。
+
+npm 官方源上的 `xlsx` 包停留在 **0.18.5**（带已知原型污染漏洞），SheetJS 已把发布渠道迁移到自家 CDN，
+官方文档明确建议把 tarball **vendoring**（放进仓库）以降低供应链风险、并支持离线构建：
+
+* `package.json`：`"xlsx": "file:vendor/xlsx-0.20.3.tgz"`
+* SHA-256：`8dc73fc3b00203e72d176e85b50938627c7b086e607c682e8d3c22c02bb99fe8`
+* 来源：https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
+
+> ⚠️ `Dockerfile` 中 `COPY vendor ./vendor` 必须位于 `npm ci` **之前**，否则构建会因为找不到本地依赖而失败。
+
+---
+
 ## 安全说明
 
 * 所有内部令牌来自环境变量，源码中**不存在任何默认令牌或默认密码**

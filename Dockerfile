@@ -6,6 +6,8 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json package-lock.json ./
+# vendor/ 里是本地依赖（SheetJS 官方 tarball），必须在 npm ci 之前拷进来
+COPY vendor ./vendor
 RUN npm ci
 
 # 2. 构建阶段
