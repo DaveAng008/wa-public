@@ -38,12 +38,12 @@ git push
 
 **推荐做法（零历史，最干净）**：
 ```bash
-# 在 GitHub 上新建一个空仓库（例如 wa-pro-v2），不要勾选 README
+# 在 GitHub 上新建一个空仓库（例如 wa-public），不要勾选 README
 git init
 git add -A
 git commit -m "init: Omniflow CRM v2（安全清理版）"
 git branch -M main
-git remote add origin https://github.com/你的用户名/wa-pro-v2.git
+git remote add origin https://github.com/你的用户名/你的仓库名.git
 git push -u origin main
 ```
 
@@ -117,7 +117,7 @@ GitHub PAT、Notion 集成密钥、Cloudflare R2 的 AccessKey/SecretKey、VPS �
 ## 第 4 步：建 Docker Compose 资源（网站 + Evolution）
 
 1. 同一个 Project → **+ New Resource** → **Docker Compose**
-2. **Source**：选 **GitHub App**（你之前绑过 GitHub，直接用）→ Repository：`DaveAng008/wa-pro`
+2. **Source**：选 **GitHub App**（或 Public Repository）→ Repository：`DaveAng008/wa-public`（换成你自己的仓库即可）
 3. **Branch**：`main`（或你实际的分支）
 4. **Docker Compose Location**：`/docker-compose.yml` ← 必须对，这是仓库根目录
 5. **Save**
