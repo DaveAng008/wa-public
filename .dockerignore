@@ -1,0 +1,21 @@
+node_modules
+.next
+.git
+.gitignore
+# 环境变量：只允许把模板打进镜像，真实 .env 绝不进镜像
+.env
+.env.*
+!.env.example
+# 运行时数据与含密钥的文件
+data.json
+notion_db.json
+output.json
+*.txt
+*.tsbuildinfo
+# 内部文档与旧代码
+docs
+V34_*.md
+V36_*.md
+代办更新事项.md
+scratch
+crm

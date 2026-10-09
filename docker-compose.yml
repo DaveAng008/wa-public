@@ -1,0 +1,177 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Omniflow CRM · 一键部署栈
+#
+#  本地/裸机：  docker compose up -d
+#  Coolify：    新建资源 → Docker Compose → 选本仓库 → Compose 路径 /docker-compose.yml
+#
+#  设计要点：
+#   · 只有 web 服务对外暴露端口，Evolution / Postgres / Redis 全部留在 Docker 内网
+#   · 网站通过 http://evolution:8080 访问 Evolution（服务名即内网域名，永不暴露公网）
+#   · Evolution 通过 http://web:3000/api/webhooks/whatsapp-incoming 回调你的网站
+#   · 所有密钥来自环境变量，仓库里没有任何默认值
+# ─────────────────────────────────────────────────────────────────────────────
+name: omniflow
+
+services:
+  # ── 你的 Next.js 网站（唯一对公网开放的服务）───────────────────────────────
+  web:
+    build: .
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      TZ: ${TZ:-Asia/Kuala_Lumpur}
+
+      # 你的业务数据库（MySQL）
+      DATABASE_URL: ${DATABASE_URL}
+
+      # 登录会话密钥。⚠️ 设定后永远不要更改，否则所有人被登出
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_URL: ${APP_URL}
+      NEXTAUTH_URL: ${APP_URL}
+      AUTH_TRUST_HOST: "true"
+
+      # 运行时数据目录（data.json：受众配置/日志/Notion 缓存）→ 挂到持久卷
+      DATA_DIR: /app/data
+
+      # ↓↓↓ 内网地址：http://<compose 服务名>:<容器端口>，绝不出公网 ↓↓↓
+      EVOLUTION_API_URL: http://evolution:8080
+      EVOLUTION_API_KEY: ${EVOLUTION_API_KEY}
+
+      # 内部令牌：cron 调度 / 服务端互调（未配置则这些通道一律关闭）
+      CRON_TOKEN: ${CRON_TOKEN}
+
+      # 服务端访问自己的固定基址（用于内部调用，避免信任 Host 头）
+      INTERNAL_BASE_URL: ${INTERNAL_BASE_URL}
+
+      # 首次初始化数据库时创建管理员（不配置则不会创建任何默认账号）
+      INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD}
+      INITIAL_ADMIN_EMAIL: ${INITIAL_ADMIN_EMAIL}
+
+      # Evolution 回调本网站时的凭证，以及数据库初始化 Token
+      WEBHOOK_TOKEN: ${WEBHOOK_TOKEN}
+      DB_PATCH_TOKEN: ${DB_PATCH_TOKEN}
+
+      # 建议在实现实例 token 加密后启用
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+    volumes:
+      - uploads:/app/public/uploads   # 素材图片/语音（丢了不可恢复）
+      - appdata:/app/data             # data.json
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    depends_on:
+      - evolution
+    networks: [wa]
+
+  # ── Evolution API（WhatsApp 引擎，仅内网可达）──────────────────────────────
+  evolution:
+    image: evoapicloud/evolution-api:latest   # ⚠️ 首次跑通后请改成固定版本号，防止被 latest 意外升级
+    restart: unless-stopped
+    environment:
+      SERVER_TYPE: http
+      SERVER_PORT: "8080"
+      SERVER_URL: http://evolution:8080
+
+      # 全局 API Key（管理员用；与 web 的 EVOLUTION_API_KEY 必须是同一个值）
+      AUTHENTICATION_API_KEY: ${EVOLUTION_API_KEY}
+      # 让 /instance/fetchInstances 返回实例 token（前端只显示掩码时也依赖它）
+      AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES: "true"
+
+      # 自带数据库与缓存（不使用外部服务）
+      DATABASE_ENABLED: "true"
+      DATABASE_PROVIDER: postgresql
+      DATABASE_CONNECTION_URI: postgresql://evo:${EVO_DB_PASSWORD}@evolution-db:5432/evolution?schema=public
+      DATABASE_SAVE_DATA_INSTANCE: "true"
+      DATABASE_SAVE_DATA_NEW_MESSAGE: "true"
+      DATABASE_SAVE_MESSAGE_UPDATE: "true"
+      DATABASE_SAVE_DATA_CONTACTS: "true"
+      DATABASE_SAVE_DATA_CHATS: "true"
+
+      CACHE_REDIS_ENABLED: "true"
+      CACHE_REDIS_URI: redis://evolution-redis:6379/6
+      CACHE_REDIS_PREFIX_KEY: evolution
+      CACHE_LOCAL_ENABLED: "false"
+
+      # 手机上"已关联的设备"里显示的名字
+      CONFIG_SESSION_PHONE_CLIENT: Omniflow CRM
+      CONFIG_SESSION_PHONE_NAME: Chrome
+      QRCODE_LIMIT: "30"
+      LOG_LEVEL: ERROR,WARN,INFO
+      DEL_INSTANCE: "false"
+      LANGUAGE: zh-CN
+    volumes:
+      - evolution_instances:/evolution/instances   # 🔴 登录态！不持久化=每次重部署都要重新扫码
+    expose:
+      - "8080"        # ⚠️ 只对内网暴露。千万不要写成 ports（那会把 Evolution 暴露到公网）
+    depends_on:
+      evolution-db:
+        condition: service_healthy
+      evolution-redis:
+        condition: service_started
+    networks: [wa]
+
+  # ── Evolution 的数据库 ────────────────────────────────────────────────────
+  evolution-db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: evo
+      POSTGRES_PASSWORD: ${EVO_DB_PASSWORD}
+      POSTGRES_DB: evolution
+    volumes:
+      - evolution_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evo -d evolution"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks: [wa]
+
+  # ── Evolution 的缓存 ──────────────────────────────────────────────────────
+  evolution-redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - evolution_redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks: [wa]
+
+  # ── 可选：把 MySQL 也打包进来（给"别人拿到代码包就能起"用）──────────────────
+  #  默认关闭。你自己部署时建议用 Coolify 托管的 MySQL（有自动备份）。
+  #  要启用：取消下面注释，并把 web 的 DATABASE_URL 改成
+  #  mysql://omniflow:${MYSQL_PASSWORD}@db:3306/omniflow?charset=utf8mb4
+  #
+  #  db:
+  #    image: mysql:8.0
+  #    restart: unless-stopped
+  #    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+  #    environment:
+  #      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+  #      MYSQL_DATABASE: omniflow
+  #      MYSQL_USER: omniflow
+  #      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+  #    volumes:
+  #      - mysqldata:/var/lib/mysql
+  #    healthcheck:
+  #      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${MYSQL_ROOT_PASSWORD}"]
+  #      interval: 10s
+  #      timeout: 5s
+  #      retries: 12
+  #    networks: [wa]
+
+volumes:
+  uploads:
+  appdata:
+  evolution_instances:
+  evolution_pgdata:
+  evolution_redisdata:
+  # mysqldata:
+
+networks:
+  wa:
+    driver: bridge

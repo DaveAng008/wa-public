@@ -1,0 +1,4 @@
+# Nixpacks 部署配置文件
+[phases.setup]
+# "..." 表示保留 Nixpacks 自动检测到的默认环境（如 Node.js），并在此基础上安装 ffmpeg
+nixPkgs = ["...", "ffmpeg"]

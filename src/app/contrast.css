@@ -1,0 +1,40 @@
+/* 紧急视觉对比度补丁 */
+
+/* 加深文本颜色 */
+.text-slate-400, .text-gray-400 {
+  color: #475569 !important; /* 加深为 slate-600 级别 */
+}
+.text-slate-500, .text-gray-500 {
+  color: #334155 !important; /* 加深为 slate-700 级别 */
+}
+.text-slate-600, .text-gray-600 {
+  color: #1e293b !important; /* 加深为 slate-800 级别 */
+}
+
+/* 强制显示输入框文字 */
+input, select, textarea {
+  color: #0f172a !important; /* 纯深色 */
+  border-color: #94a3b8 !important; /* 更明显的边框 */
+}
+
+/* 强制显示 placeholder */
+::placeholder {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* 仪表盘和表格标题加深 */
+h1, h2, h3, th {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+/* 列表内容加深 */
+td {
+  color: #1e293b !important;
+}
+
+/* 加深状态标签文字 */
+.text-xs {
+  font-weight: 600 !important;
+}

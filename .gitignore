@@ -1,0 +1,58 @@
+﻿# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+# 閮ㄧ讲妯℃澘蹇呴』鎻愪氦锛堝惁鍒欏埆浜烘嬁鍒颁唬鐮佸寘涓嶇煡閬撴€庝箞閰嶏級
+!.env.example
+
+# 杩愯鏃舵暟鎹笌鍚瘑閽ョ殑鏂囦欢锛堢粷涓嶈兘杩涗粨搴?/ 闀滃儚锛?
+data.json
+notion_db.json
+output.json
+materials_export_*.txt
+wa-pro.daveang.io.txt
+鏂板缓 鏂囨湰鏂囨。.txt
+
+# 鍐呴儴鏂囨。锛堝璁℃姤鍛?/ 璁捐鏂规绛夛紝鍙兘鍚巻鍙蹭护鐗屼俊鎭紝涓嶅叕寮€锛?
+/docs/internal/
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+*_Backup/
+/backup/
+/scratch/
+*.dmp
