@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import mysql from "mysql2/promise";
 import { auth } from "@/auth";
 import * as XLSX from "xlsx";
+import { APP_NAME } from "@/lib/brand";
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
     if (format === "txt") {
       // --- TXT 格式输出 ---
       const lines: string[] = [
-        "=== Omniflow CRM 素材库导出 ===",
+        `=== ${APP_NAME} 素材库导出 ===`,
         `导出时间: ${new Date().toLocaleString("zh-CN")}`,
         `总计素材: ${materials.length} 条`,
         "=".repeat(40),

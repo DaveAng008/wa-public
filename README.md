@@ -1,7 +1,10 @@
-# Omniflow CRM · WhatsApp 自动化营销与客服平台
+# WhatsApp CRM · 自动化营销与客服平台
 
 多租户的 WhatsApp 群发 + CRM 系统：联系人管理、可视化看板、自动回复规则、多轮群发调度、
 素材库、数据报表，全部跑在 Next.js 上，自带 Evolution API（内网），**一条命令即可部署**。
+
+> 本项目为**白标**设计：不含任何特定服务商的仓库地址、域名或品牌。产品名可在部署时通过
+> 环境变量 `NEXT_PUBLIC_APP_NAME` 换成你自己的（见下文「白标：换成你自己的品牌」）。
 
 ---
 
@@ -27,6 +30,7 @@ docker compose up -d
 
 | 变量 | 说明 |
 | :--- | :--- |
+| `NEXT_PUBLIC_APP_NAME` | 产品显示名（白标，默认 `WhatsApp CRM`） |
 | `DATABASE_URL` | MySQL 连接串，**必须带 `?charset=utf8mb4`** |
 | `AUTH_SECRET` | 登录会话密钥，≥32 位随机串，**设定后不要再改** |
 | `EVOLUTION_API_KEY` | Evolution 全局 API Key（网站与 Evolution 共用同一个值） |
@@ -41,6 +45,22 @@ docker compose up -d
 
 > 所有密钥都必须由部署环境生成，仓库里**没有任何默认值**：
 > 未配置 `WEBHOOK_TOKEN` / `CRON_TOKEN` 时相关接口一律拒绝请求（fail closed）。
+
+---
+
+## 白标：换成你自己的品牌
+
+全站产品名集中在一处（[src/lib/brand.ts](src/lib/brand.ts)），只需设置环境变量，**不用改代码**：
+
+```env
+NEXT_PUBLIC_APP_NAME=你的产品名
+NEXT_PUBLIC_APP_NAME_SUFFIX=Pro      # 可留空
+```
+
+生效范围：浏览器标题、登录页、侧边栏、素材导出文件的抬头、手机「已关联的设备」名称。
+
+> `NEXT_PUBLIC_` 变量会在**构建时**写入前端产物，所以改完要在 Coolify 上重新 Deploy。
+> 其中手机端设备名（`CONFIG_SESSION_PHONE_CLIENT`）在 [docker-compose.yml](docker-compose.yml) 里，一并改掉即可。
 
 ---
 

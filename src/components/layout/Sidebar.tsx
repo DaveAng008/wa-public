@@ -20,6 +20,7 @@ import {
   Columns,
   Cpu,
 } from "lucide-react";
+import { APP_NAME, APP_NAME_SUFFIX } from "@/lib/brand";
 
 interface NavItem {
   name: string;
@@ -71,8 +72,8 @@ export function Sidebar({ collapsed, onToggleCollapse, isMobileOpen, onMobileClo
         <Activity className="w-7 h-7 text-green-400 flex-shrink-0" />
         {(!collapsed || isMobileOpen) && (
           <div className="overflow-hidden">
-            <h1 className="text-base font-bold tracking-wide whitespace-nowrap">n8n Manager</h1>
-            <span className="text-[10px] text-green-400 tracking-wider">PRO</span>
+            <h1 className="text-base font-bold tracking-wide whitespace-nowrap">{APP_NAME}</h1>
+            <span className="text-[10px] text-green-400 tracking-wider">{APP_NAME_SUFFIX.toUpperCase()}</span>
           </div>
         )}
         {/* 电脑端折叠按钮 */}

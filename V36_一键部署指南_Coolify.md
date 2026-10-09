@@ -38,10 +38,10 @@ git push
 
 **推荐做法（零历史，最干净）**：
 ```bash
-# 在 GitHub 上新建一个空仓库（例如 wa-public），不要勾选 README
+# 在 GitHub 上新建一个空仓库（例如 whatsapp-crm），不要勾选 README
 git init
 git add -A
-git commit -m "init: Omniflow CRM v2（安全清理版）"
+git commit -m "init: WhatsApp CRM v2（安全清理版）"
 git branch -M main
 git remote add origin https://github.com/你的用户名/你的仓库名.git
 git push -u origin main
@@ -77,11 +77,11 @@ GitHub PAT、Notion 集成密钥、Cloudflare R2 的 AccessKey/SecretKey、VPS �
 
 ## 第 1 步：域名与 DNS
 
-1. 准备一个新域名，例如 `wa2.yourdomain.com`（可以是你现有域名下的子域）。
+1. 准备一个新域名，例如 `crm.yourdomain.com`（可以是你现有域名下的子域）。
 2. 到域名商添加 **A 记录** 指向你的 VPS 公网 IP。
 3. 等 1~5 分钟，确认解析生效：
    ```bash
-   nslookup wa2.yourdomain.com
+   nslookup crm.yourdomain.com
    ```
 4. **先解析成功再去 Coolify 配域名**，否则自动签发 HTTPS 证书会失败。
 
@@ -90,7 +90,7 @@ GitHub PAT、Notion 集成密钥、Cloudflare R2 的 AccessKey/SecretKey、VPS �
 ## 第 2 步：Coolify 里新建 Project
 
 1. 登录 Coolify → 左侧 **Projects** → **+ Add**
-2. Name：`omniflow`（随便取）→ **Create**
+2. Name：`whatsapp-crm`（随便取）→ **Create**
 3. 进入这个 Project，后面所有东西都建在它里面（**同一个 Project 才能走内网互通**）。
 
 ---
@@ -98,15 +98,15 @@ GitHub PAT、Notion 集成密钥、Cloudflare R2 的 AccessKey/SecretKey、VPS �
 ## 第 3 步：建一个全新的 MySQL（推荐用 Coolify 托管）
 
 1. 在 Project 页面点 **+ New Resource** → **Database** → **MySQL**
-2. Name：`omniflow-mysql`；版本选 **8.0**；设置 root 密码（点 🎲 生成）
+2. Name：`whatsapp-crm-mysql`；版本选 **8.0**；设置 root 密码（点 🎲 生成）
 3. **Deploy**，等状态变绿
 4. 打开它的 **General / Connection** 面板，复制 **Internal** 连接串，形如：
    ```
-   mysql://mysql:密码@omniflow-mysql:3306/default
+   mysql://mysql:密码@whatsapp-crm-mysql:3306/default
    ```
 5. 改造成你的 `DATABASE_URL`（**必须带 `?charset=utf8mb4`**，否则中文和 emoji 会出错）：
    ```
-   mysql://mysql:密码@omniflow-mysql:3306/default?charset=utf8mb4
+   mysql://mysql:密码@whatsapp-crm-mysql:3306/default?charset=utf8mb4
    ```
 6. 顺手在这个 MySQL 的 **Backups** 页开启定时备份（这是你全部客户数据）。
 
@@ -117,7 +117,7 @@ GitHub PAT、Notion 集成密钥、Cloudflare R2 的 AccessKey/SecretKey、VPS �
 ## 第 4 步：建 Docker Compose 资源（网站 + Evolution）
 
 1. 同一个 Project → **+ New Resource** → **Docker Compose**
-2. **Source**：选 **GitHub App**（或 Public Repository）→ Repository：`DaveAng008/wa-public`（换成你自己的仓库即可）
+2. **Source**：选 **GitHub App**（或 Public Repository）→ Repository：`你的用户名/你的仓库名`（换成你自己的仓库即可）
 3. **Branch**：`main`（或你实际的分支）
 4. **Docker Compose Location**：`/docker-compose.yml` ← 必须对，这是仓库根目录
 5. **Save**
@@ -132,7 +132,7 @@ Coolify 会自动识别出 4 个服务（web / evolution / evolution-db / evolut
 
 | 变量 | 怎么填 |
 | :--- | :--- |
-| `APP_URL` | `https://wa2.yourdomain.com` |
+| `APP_URL` | `https://crm.yourdomain.com` |
 | `DATABASE_URL` | 第 3 步拿到的内网连接串（带 `charset=utf8mb4`） |
 | `AUTH_SECRET` | 点 🎲 生成（≥32 位）。**设定后永远不要改**，否则所有人被登出 |
 | `EVOLUTION_API_KEY` | 点 🎲 生成 64 位十六进制。这是 Evolution 的全局 key |
@@ -154,7 +154,7 @@ Coolify 会自动识别出 4 个服务（web / evolution / evolution-db / evolut
 ## 第 6 步：只给 web 服务配域名
 
 1. 在 Compose 资源里找到 **web** 服务 → **Domains** 输入框
-2. 填 `https://wa2.yourdomain.com`，端口填 `3000`
+2. 填 `https://crm.yourdomain.com`，端口填 `3000`
 3. **其他服务（evolution / evolution-db / evolution-redis）一律不要配域名** ← 这就是"藏进内网"的关键
 4. 保存
 
@@ -184,7 +184,7 @@ Coolify 会自动识别出 4 个服务（web / evolution / evolution-db / evolut
 浏览器访问（把 token 换成你的 `DB_PATCH_TOKEN`）：
 
 ```
-https://wa2.yourdomain.com/api/patch-db?token=你的DB_PATCH_TOKEN
+https://crm.yourdomain.com/api/patch-db?token=你的DB_PATCH_TOKEN
 ```
 
 返回一段中文初始化报告（创建表、创建 `InstanceConfig`、初始化默认 AppSettings 行…）。
@@ -196,7 +196,7 @@ https://wa2.yourdomain.com/api/patch-db?token=你的DB_PATCH_TOKEN
 
 ## 第 9 步：登录并立刻改密码
 
-1. 访问 `https://wa2.yourdomain.com` → 用你设置的 `INITIAL_ADMIN_EMAIL` / `INITIAL_ADMIN_PASSWORD` 登录
+1. 访问 `https://crm.yourdomain.com` → 用你设置的 `INITIAL_ADMIN_EMAIL` / `INITIAL_ADMIN_PASSWORD` 登录
 2. **马上**去 **用户管理** 改掉密码
 3. 顺便创建你自己的运营账号，把 `maxInstances` 设为你要的号码数上限
 
@@ -309,7 +309,7 @@ docker run --rm -v <卷名>:/data -v $(pwd):/backup alpine \
 ```
 网站  → Evolution :  http://evolution:8080
 Evolution → 网站  :  http://web:3000/api/webhooks/whatsapp-incoming
-网站  → MySQL     :  mysql://...@omniflow-mysql:3306/default?charset=utf8mb4
+网站  → MySQL     :  mysql://...@whatsapp-crm-mysql:3306/default?charset=utf8mb4
 ```
 
 记住一个原则：**凡是 `http://服务名:端口` 形式的就是内网地址，永远不要换成公网域名。**

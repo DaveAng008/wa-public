@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────────────────────────────────────
-#  Omniflow CRM · 一键部署栈
+#  WhatsApp CRM · 一键部署栈
 #
 #  本地/裸机：  docker compose up -d
 #  Coolify：    新建资源 → Docker Compose → 选本仓库 → Compose 路径 /docker-compose.yml
@@ -9,8 +9,10 @@
 #   · 网站通过 http://evolution:8080 访问 Evolution（服务名即内网域名，永不暴露公网）
 #   · Evolution 通过 http://web:3000/api/webhooks/whatsapp-incoming 回调你的网站
 #   · 所有密钥来自环境变量，仓库里没有任何默认值
+#
+#  ⚠️ 下面的 name 决定数据卷的前缀，首次部署后不要修改，否则会找不到原有数据卷
 # ─────────────────────────────────────────────────────────────────────────────
-name: omniflow
+name: whatsapp-crm
 
 services:
   # ── 你的 Next.js 网站（唯一对公网开放的服务）───────────────────────────────
@@ -93,7 +95,7 @@ services:
       CACHE_LOCAL_ENABLED: "false"
 
       # 手机上"已关联的设备"里显示的名字
-      CONFIG_SESSION_PHONE_CLIENT: Omniflow CRM
+      CONFIG_SESSION_PHONE_CLIENT: WhatsApp CRM
       CONFIG_SESSION_PHONE_NAME: Chrome
       QRCODE_LIMIT: "30"
       LOG_LEVEL: ERROR,WARN,INFO
@@ -144,7 +146,7 @@ services:
   # ── 可选：把 MySQL 也打包进来（给"别人拿到代码包就能起"用）──────────────────
   #  默认关闭。你自己部署时建议用 Coolify 托管的 MySQL（有自动备份）。
   #  要启用：取消下面注释，并把 web 的 DATABASE_URL 改成
-  #  mysql://omniflow:${MYSQL_PASSWORD}@db:3306/omniflow?charset=utf8mb4
+  #  mysql://crm:${MYSQL_PASSWORD}@db:3306/whatsapp_crm?charset=utf8mb4
   #
   #  db:
   #    image: mysql:8.0
@@ -152,8 +154,8 @@ services:
   #    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
   #    environment:
   #      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-  #      MYSQL_DATABASE: omniflow
-  #      MYSQL_USER: omniflow
+  #      MYSQL_DATABASE: whatsapp_crm
+  #      MYSQL_USER: crm
   #      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
   #    volumes:
   #      - mysqldata:/var/lib/mysql

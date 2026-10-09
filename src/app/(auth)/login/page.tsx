@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Activity, Loader2, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { APP_NAME, APP_NAME_SUFFIX } from "@/lib/brand";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -36,8 +37,8 @@ export default function LoginPage() {
           <div className="inline-flex items-center gap-3 mb-4">
             <Activity className="w-10 h-10 text-green-500" />
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900">n8n Manager</h1>
-              <span className="text-xs text-green-500 font-semibold tracking-widest">PRO</span>
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900">{APP_NAME}</h1>
+              <span className="text-xs text-green-500 font-semibold tracking-widest">{APP_NAME_SUFFIX.toUpperCase()}</span>
             </div>
           </div>
           <p className="text-slate-500 text-sm">团队协作 WhatsApp 营销平台</p>
@@ -99,7 +100,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs text-slate-400 mt-6">
-          © {new Date().getFullYear()} n8n Manager Pro
+          © {new Date().getFullYear()} {APP_NAME} {APP_NAME_SUFFIX}
         </p>
       </div>
     </div>

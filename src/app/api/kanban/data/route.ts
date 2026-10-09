@@ -177,10 +177,10 @@ export async function GET(req: Request) {
       const expandedInstances: string[] = [];
       activeInstances.forEach((inst: any) => {
         if (typeof inst !== "string") return;
-        expandedInstances.push(inst); // 保留 rawName (如 usr_cmcXXXX_singapore-daveang888)
+        expandedInstances.push(inst); // 保留 rawName (如 usr_cmcXXXX_my-whatsapp)
         const stripped = inst.replace(/^usr_cmc\w+?_/, "");
         if (stripped !== inst && !expandedInstances.includes(stripped)) {
-          expandedInstances.push(stripped); // 增加 displayName (如 singapore-daveang888)
+          expandedInstances.push(stripped); // 增加 displayName (如 my-whatsapp)
         }
       });
 

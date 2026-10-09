@@ -4917,7 +4917,7 @@ export default function ContactsPage() {
                 type="text"
                 value={bulkEditVal}
                 onChange={(e) => setBulkEditVal(e.target.value)}
-                placeholder={bulkEditMode === "ADD_PREFIX" ? "例如：60" : bulkEditMode === "REMOVE_PREFIX" ? "例如：+" : bulkEditMode === "APPEND" ? "例如：新标签" : "例如：daveang98"}
+                placeholder={bulkEditMode === "ADD_PREFIX" ? "例如：60" : bulkEditMode === "REMOVE_PREFIX" ? "例如：+" : bulkEditMode === "APPEND" ? "例如：新标签" : "例如：VIP客户"}
                 className="w-full mt-1 border-2 border-slate-100 bg-slate-50 rounded-xl px-4 py-2 text-sm font-black text-slate-800 focus:border-blue-500 outline-none"
               />
             </div>

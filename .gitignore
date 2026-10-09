@@ -1,4 +1,4 @@
-﻿# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
 /node_modules
@@ -30,20 +30,25 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files（模板必须提交，真实 .env 绝不提交）
 .env*
-# 閮ㄧ讲妯℃澘蹇呴』鎻愪氦锛堝惁鍒欏埆浜烘嬁鍒颁唬鐮佸寘涓嶇煡閬撴€庝箞閰嶏級
 !.env.example
 
-# 杩愯鏃舵暟鎹笌鍚瘑閽ョ殑鏂囦欢锛堢粷涓嶈兘杩涗粨搴?/ 闀滃儚锛?
+# 运行时数据与含密钥的文件（绝不能进仓库 / 镜像）
 data.json
 notion_db.json
 output.json
 materials_export_*.txt
-wa-pro.daveang.io.txt
-鏂板缓 鏂囨湰鏂囨。.txt
 
-# 鍐呴儴鏂囨。锛堝璁℃姤鍛?/ 璁捐鏂规绛夛紝鍙兘鍚巻鍙蹭护鐗屼俊鎭紝涓嶅叕寮€锛?
+# 任意本地笔记 / 密钥 / 数据库导出
+*.local
+*.secret
+*.key
+secrets/
+*.sql.gz
+*.dump
+
+# 内部文档（审计与设计文档，不随仓库发布）
 /docs/internal/
 
 # vercel
@@ -52,6 +57,8 @@ wa-pro.daveang.io.txt
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# 本地备份 / 临时脚本
 *_Backup/
 /backup/
 /scratch/
